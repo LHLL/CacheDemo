@@ -21,6 +21,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         searchTableView.registerNib(UINib(nibName: "ResultTableViewCell", bundle: nil), forCellReuseIdentifier: "Cell")
         searchTableView.estimatedRowHeight = 150
         searchTableView.rowHeight = UITableViewAutomaticDimension
+        if appDelegate.result.count > 0 {
+            searchTableView.hidden = false
+        }
     }
     
     //MARK:UITableViewDataSource and UITableViewDelegate

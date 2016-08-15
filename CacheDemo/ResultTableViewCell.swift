@@ -24,10 +24,11 @@ class ResultTableViewCell: UITableViewCell {
     private let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     var cellIndex = -1
     var webServiceHandler = WebServiceHandler()
+    
     var downloadInfo:(percentage:Float, total:String) = (0,"") {
         didSet{
             if downloadInfo.percentage == 1.0 {
-                dispatch_async(dispatch_get_main_queue(), { 
+                dispatch_async(dispatch_get_main_queue(), {
                     self.downloadLabel.text = "Done"
                     self.progressBar.progress = self.downloadInfo.percentage
                     self.switchButton.setTitle("Play", forState: .Normal)
@@ -104,6 +105,7 @@ class ResultTableViewCell: UITableViewCell {
             progressBar.progress = 0
             downloadView.hidden = true
             downloadTheSong.enabled = true
+            downloadLabel.text = ""
             appDelegate.result[cellIndex].music = NSData()
             progressBar.hidden = true
             downloadLabel.hidden = true
@@ -111,6 +113,12 @@ class ResultTableViewCell: UITableViewCell {
             switchButton.setTitle("Pause", forState: .Normal)
         }else if sender.titleLabel?.text == "Cancel" {
             webServiceHandler.downloadManager!.cancel()
+            webServiceHandler.resumeData = nil
+            progressBar.progress = 0
+            progressBar.hidden = true
+            downloadLabel.hidden = true
+            downloadTheSong.enabled = true
+            downloadView.hidden = true
         }
     }
     

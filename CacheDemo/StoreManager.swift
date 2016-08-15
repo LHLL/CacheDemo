@@ -1,6 +1,6 @@
 //
 //  StoreManager.swift
-//  OCVSSwift
+//  CacheDemo
 //
 //  Created by Xu, Jay on 8/12/16.
 //  Copyright © 2016 Xu, Jay. All rights reserved.
@@ -16,6 +16,24 @@ class StoreManager: NSObject {
     func save(object:AnyObject, name:String, completion:(status:Bool)->Void) throws {
         guard fileManager.fileExistsAtPath(path + name) == false else {
             throw PersistentError.DuplicateName
+        }
+        dispatch_barrier_async(storeQueue, {
+            if NSKeyedArchiver.archiveRootObject(object, toFile: self.path + name) {
+                completion(status: true)
+            }else {
+                completion(status: false)
+            }
+        })
+    }
+    
+    func modifyExistingFile(object:AnyObject, name:String, completion:(status:Bool)->Void) throws {
+        guard fileManager.fileExistsAtPath(path + name) else {
+           throw PersistentError.NoSuchFileFound
+        }
+        do{
+            try fileManager.removeItemAtPath(path + name)
+        }catch let error {
+            throw error
         }
         dispatch_barrier_async(storeQueue, {
             if NSKeyedArchiver.archiveRootObject(object, toFile: self.path + name) {
@@ -44,4 +62,5 @@ class StoreManager: NSObject {
 enum PersistentError:ErrorType {
     case DuplicateName
     case NoSuchFileFound
+    case SystemError
 }

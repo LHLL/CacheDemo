@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AE0986431D621AE3006B8B8E /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE0986421D621AE3006B8B8E /* StoreManager.swift */; };
+		AE0986441D621AE3006B8B8E /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE0986421D621AE3006B8B8E /* StoreManager.swift */; };
+		AE0986451D621AE3006B8B8E /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE0986421D621AE3006B8B8E /* StoreManager.swift */; };
 		AE6C1EE21D47C91700799E81 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6C1EE11D47C91700799E81 /* AppDelegate.swift */; };
 		AE6C1EE41D47C91700799E81 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6C1EE31D47C91700799E81 /* ViewController.swift */; };
 		AE6C1EE71D47C91700799E81 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AE6C1EE51D47C91700799E81 /* Main.storyboard */; };
@@ -43,6 +46,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		AE0986421D621AE3006B8B8E /* StoreManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		AE6C1EDE1D47C91700799E81 /* CacheDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CacheDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE6C1EE11D47C91700799E81 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AE6C1EE31D47C91700799E81 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -94,6 +98,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AE0986401D621ABE006B8B8E /* WebService */ = {
+			isa = PBXGroup;
+			children = (
+				AE6C1F121D47D12B00799E81 /* WebServiceHandler.swift */,
+				AE6C1F191D47FEFC00799E81 /* DataParser.swift */,
+			);
+			name = WebService;
+			sourceTree = "<group>";
+		};
+		AE0986411D621AC8006B8B8E /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				AE0986421D621AE3006B8B8E /* StoreManager.swift */,
+			);
+			name = Storage;
+			sourceTree = "<group>";
+		};
 		AE6C1ED51D47C91700799E81 = {
 			isa = PBXGroup;
 			children = (
@@ -168,8 +189,8 @@
 		AE6C1F171D47FEDD00799E81 /* Module */ = {
 			isa = PBXGroup;
 			children = (
-				AE6C1F121D47D12B00799E81 /* WebServiceHandler.swift */,
-				AE6C1F191D47FEFC00799E81 /* DataParser.swift */,
+				AE0986411D621AC8006B8B8E /* Storage */,
+				AE0986401D621ABE006B8B8E /* WebService */,
 				AE6C1F1B1D47FF4C00799E81 /* SearchResult.swift */,
 				AE821BA21D49740C00D5A2DF /* MusicPlayer.swift */,
 			);
@@ -325,6 +346,7 @@
 				AE6C1F1C1D47FF4C00799E81 /* SearchResult.swift in Sources */,
 				AE6C1F1A1D47FEFC00799E81 /* DataParser.swift in Sources */,
 				AE821BA31D49740C00D5A2DF /* MusicPlayer.swift in Sources */,
+				AE0986431D621AE3006B8B8E /* StoreManager.swift in Sources */,
 				AE6C1F1E1D4802B800799E81 /* ResultTableViewCell.swift in Sources */,
 				AE6C1EE21D47C91700799E81 /* AppDelegate.swift in Sources */,
 			);
@@ -335,6 +357,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AE6C1EF71D47C91700799E81 /* CacheDemoTests.swift in Sources */,
+				AE0986441D621AE3006B8B8E /* StoreManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -343,6 +366,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AE6C1F021D47C91700799E81 /* CacheDemoUITests.swift in Sources */,
+				AE0986451D621AE3006B8B8E /* StoreManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

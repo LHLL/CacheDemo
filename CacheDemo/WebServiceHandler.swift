@@ -82,6 +82,15 @@ class WebServiceHandler: NSObject, NSURLSessionDownloadDelegate {
     func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL) {
         let songData = NSData(contentsOfURL: location)
         appDelegate.result[cell!.cellIndex].music = songData!
+        do {
+            try StoreManager().save(self.appDelegate.result, name: "result", completion: { (success) in
+                if success {
+                    print("success")
+                }
+            })
+        }catch let error {
+            print(error)
+        }
     }
     
     func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
