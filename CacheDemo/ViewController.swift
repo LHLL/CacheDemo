@@ -18,7 +18,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        searchTableView.estimatedRowHeight = 97
+        searchTableView.registerNib(UINib(nibName: "ResultTableViewCell", bundle: nil), forCellReuseIdentifier: "Cell")
+        searchTableView.estimatedRowHeight = 150
         searchTableView.rowHeight = UITableViewAutomaticDimension
     }
     
@@ -35,6 +36,15 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath) as! ResultTableViewCell
         cell.cellIndex = indexPath.row
         return cell
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        searchBar.resignFirstResponder()
+    }
+    
+    func scrollViewDidScroll(scrollView: UIScrollView) {
+        searchBar.resignFirstResponder()
     }
     
     //MAKR:UISearchBarDelegate

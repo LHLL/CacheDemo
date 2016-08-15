@@ -12,24 +12,11 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    var result = [SearchResult](){
-        didSet{
-            if appStatus == "background" {
-                let notification = UILocalNotification()
-                notification.alertBody = "Download is finished"
-                notification.alertAction = "open"
-                UIApplication.sharedApplication().scheduleLocalNotification(notification)
-            }
-        }
-    }
+    var result = [SearchResult]()
     var cache = NSCache()
     private var appStatus = ""
-    var songFile = NSData() {
-        didSet{
-            MusicPlayer.initWithFilePath(songFile)
-            MusicPlayer.play()
-        }
-    }
+    var backgroundCompletion:(()->Void)?
+    
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
@@ -60,7 +47,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
+    
+    func application(application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: () -> Void) {
+        print("Done")
+        backgroundCompletion = completionHandler
+    }
 
 }
 

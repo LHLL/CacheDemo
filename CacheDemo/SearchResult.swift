@@ -9,9 +9,12 @@
 import UIKit
 
 class SearchResult: NSObject {
-    var songName = ""
-    var artistName = ""
-    var thumbNailPath = ""
-    var price = ""
-    var downloadPath = ""
+    var songName:String?
+    var artistName:String?
+    var thumbNailPath:String?
+    var price:String?
+    var downloadPath:String?
+    var isDownloading = false
+    var isCached = false
+    var music = NSData()
 }
