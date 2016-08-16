@@ -14,29 +14,24 @@ class StoreManager: NSObject {
     private let storeQueue = dispatch_queue_create("storeQ", DISPATCH_QUEUE_CONCURRENT)
     let fileManager = NSFileManager.defaultManager()
     func save(object:AnyObject, name:String, completion:(status:Bool)->Void) throws {
-        guard fileManager.fileExistsAtPath(path + name) == false else {
-            throw PersistentError.DuplicateName
-        }
-        dispatch_barrier_async(storeQueue, {
-            if NSKeyedArchiver.archiveRootObject(object, toFile: self.path + name) {
-                completion(status: true)
-            }else {
-                completion(status: false)
+        guard fileManager.fileExistsAtPath(path + "/" + name) == false else {
+            do{
+                try fileManager.removeItemAtPath(path  + "/" + name)
+            }catch let error {
+                throw error
             }
-        })
-    }
-    
-    func modifyExistingFile(object:AnyObject, name:String, completion:(status:Bool)->Void) throws {
-        guard fileManager.fileExistsAtPath(path + name) else {
-           throw PersistentError.NoSuchFileFound
+            dispatch_barrier_async(storeQueue, {
+                if NSKeyedArchiver.archiveRootObject(object, toFile: self.path + "/" + name) {
+                    completion(status: true)
+                }else {
+                    completion(status: false)
+                }
+            })
+            return
         }
-        do{
-            try fileManager.removeItemAtPath(path + name)
-        }catch let error {
-            throw error
-        }
+        
         dispatch_barrier_async(storeQueue, {
-            if NSKeyedArchiver.archiveRootObject(object, toFile: self.path + name) {
+            if NSKeyedArchiver.archiveRootObject(object, toFile: self.path + "/" + name) {
                 completion(status: true)
             }else {
                 completion(status: false)
@@ -45,11 +40,11 @@ class StoreManager: NSObject {
     }
     
     func withdraw(name:String,completionHandler:(status:Bool, object:AnyObject?)->Void) throws {
-        guard fileManager.fileExistsAtPath(path + name) else {
+        guard fileManager.fileExistsAtPath(path  + "/" + name) else {
             throw PersistentError.NoSuchFileFound
         }
         dispatch_barrier_async(storeQueue) { 
-            let result = NSKeyedUnarchiver.unarchiveObjectWithFile(self.path + name)
+            let result = NSKeyedUnarchiver.unarchiveObjectWithFile(self.path  + "/" + name)
             if result == nil {
                 completionHandler(status: false, object: nil)
             }else {

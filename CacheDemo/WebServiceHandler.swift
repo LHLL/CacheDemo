@@ -38,6 +38,17 @@ class WebServiceHandler: NSObject, NSURLSessionDownloadDelegate {
                 completion(result: nil, error: parseResult.error)
                 return
             }
+            do {
+                try StoreManager().save(parseResult.result!, name: "result") { (status) in
+                    if status {
+                        print("save success")
+                    }else {
+                        completion(result:parseResult.result, error: "Unpredicted error happened, cache failed.")
+                    }
+                }
+            }catch let error {
+                completion(result:parseResult.result, error: "\(error)")
+            }
             completion(result:parseResult.result, error: nil)
         }
         searchManager!.resume()
@@ -47,7 +58,9 @@ class WebServiceHandler: NSObject, NSURLSessionDownloadDelegate {
         cell = sender
         let identifer = randomStringFactory()
         registerActiveDownloding(identifer, completion: backgroundHandler)
-        let session = NSURLSession(configuration: NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(identifer), delegate: self, delegateQueue: nil)
+        let session = NSURLSession(configuration: NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(identifer),
+                                   delegate: self,
+                                   delegateQueue: nil)
         let url = NSURL(string: target)!
         let request = NSURLRequest(URL: url)
         downloadManager = session.downloadTaskWithRequest(request)
@@ -57,7 +70,9 @@ class WebServiceHandler: NSObject, NSURLSessionDownloadDelegate {
     func resumeDownloadProcess(){
         let identifer = randomStringFactory()
         registerActiveDownloding(identifer, completion: backgroundHandler)
-        let session = NSURLSession(configuration: NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(identifer), delegate: self, delegateQueue: nil)
+        let session = NSURLSession(configuration: NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(identifer),
+                                   delegate: self,
+                                   delegateQueue: nil)
         downloadManager = session.downloadTaskWithResumeData(resumeData!)
         downloadManager!.resume()
     }
@@ -79,35 +94,54 @@ class WebServiceHandler: NSObject, NSURLSessionDownloadDelegate {
     }
     
     //MARK:NSURLSessionDownloadDelegate
-    func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL) {
+    func URLSession(session: NSURLSession,
+                    downloadTask: NSURLSessionDownloadTask,
+                    didFinishDownloadingToURL location: NSURL) {
         let songData = NSData(contentsOfURL: location)
         appDelegate.result[cell!.cellIndex].music = songData!
         do {
-            try StoreManager().save(self.appDelegate.result, name: "result", completion: { (success) in
-                if success {
-                    print("success")
+            try StoreManager().save(appDelegate.result, name: "result") { (status) in
+                if status {
+                    print("update download result success")
+                }else {
+                    print("update download result fail")
                 }
-            })
+            }
         }catch let error {
             print(error)
         }
     }
     
-    func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+    func URLSession(session: NSURLSession,
+                    downloadTask: NSURLSessionDownloadTask,
+                    didWriteData bytesWritten: Int64,
+                                 totalBytesWritten: Int64,
+                                 totalBytesExpectedToWrite: Int64) {
         let percentage = Float(totalBytesWritten)/Float(totalBytesExpectedToWrite)
         let total = NSByteCountFormatter.stringFromByteCount(totalBytesExpectedToWrite, countStyle: .Binary)
         self.cell?.downloadInfo = (percentage,total)
     }
     
     func URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
-        print("hi")
         let notification = UILocalNotification()
-        notification.alertBody = "Download is finished"
-        notification.alertAction = "open"
-        UIApplication.sharedApplication().scheduleLocalNotification(notification)
+        appDelegate.result[cell!.cellIndex].isCached = true
+        do{
+            try StoreManager().save(appDelegate.result, name: "result", completion: { (status) in
+                if status {
+                    notification.alertBody = "Song is cached"
+                    notification.alertAction = "open"
+                    UIApplication.sharedApplication().scheduleLocalNotification(notification)
+                }else {
+                    notification.alertBody = "Download is finished, cache failed"
+                    notification.alertAction = "open"
+                    UIApplication.sharedApplication().scheduleLocalNotification(notification)
+                }
+            })
+        }catch let error {
+            print(error)
+        }
         dispatch_async(dispatch_get_main_queue()) { 
             self.appDelegate.backgroundCompletion
         }
     }
-    
 }

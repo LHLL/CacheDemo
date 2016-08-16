@@ -17,6 +17,8 @@ class SearchResult: NSObject {
     var isDownloading = false
     var isCached = false
     var music = NSData()
+    var thumbnail:UIImage?
+    var isPlaying = false
     
     required convenience init(coder aDecoder:NSCoder) {
         self.init()
@@ -25,9 +27,11 @@ class SearchResult: NSObject {
         thumbNailPath = aDecoder.decodeObjectForKey("path") as? String
         price = aDecoder.decodeObjectForKey("price") as? String
         downloadPath = aDecoder.decodeObjectForKey("download") as? String
-        isDownloading = aDecoder.decodeObjectForKey("isD") as! Bool
+        isDownloading = false
         isCached = aDecoder.decodeObjectForKey("isC") as! Bool
         music = aDecoder.decodeObjectForKey("music") as! NSData
+        thumbnail = aDecoder.decodeObjectForKey("image") as? UIImage
+        isPlaying = false
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
@@ -36,8 +40,8 @@ class SearchResult: NSObject {
         aCoder.encodeObject(thumbNailPath, forKey: "path")
         aCoder.encodeObject(price, forKey: "price")
         aCoder.encodeObject(downloadPath, forKey: "download")
-        aCoder.encodeObject(isDownloading, forKey: "isD")
         aCoder.encodeObject(isCached, forKey: "isC")
         aCoder.encodeObject(music, forKey: "music")
+        aCoder.encodeObject(thumbnail, forKey: "image")
     }
 }

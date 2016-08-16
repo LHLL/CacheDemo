@@ -37,38 +37,39 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidEnterBackground(application: UIApplication) {
-
-        appStatus = "background"
+        do {
+            try StoreManager().save(result, name: "result") { (status) in
+                if status {
+                    print("update successes before exit")
+                }else {
+                    print("update fails before exit")
+                }
+            }
+        }catch let error {
+            print(error)
+        }
     }
 
     func applicationWillEnterForeground(application: UIApplication) {
-        
+        //Show right UI when background downloading is finished
+        let navi = window?.rootViewController as! UINavigationController
+        let vc = navi.viewControllers[0] as! ViewController
+        if !vc.searchTableView.hidden {
+            vc.searchTableView.reloadData()
+        }
     }
 
     func applicationDidBecomeActive(application: UIApplication) {
-        
+
     }
 
     func applicationWillTerminate(application: UIApplication) {
-        saveResultWhenAppWillTerminate()
+
     }
     
     func application(application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: () -> Void) {
         backgroundCompletion = completionHandler
     }
     
-    func saveResultWhenAppWillTerminate(){
-        let manager = StoreManager()
-        do {
-            try manager.save(result, name: "result", completion: { (success) in
-                if success {
-                    print("success")
-                }
-            })
-        }catch let error {
-            print(error)
-        }
-    }
-
 }
 

@@ -24,7 +24,8 @@ class ResultTableViewCell: UITableViewCell {
     private let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     var cellIndex = -1
     var webServiceHandler = WebServiceHandler()
-    
+    var muteAll:(()->Void)?
+    weak var delegate:ErrorDelegate?
     var downloadInfo:(percentage:Float, total:String) = (0,"") {
         didSet{
             if downloadInfo.percentage == 1.0 {
@@ -72,14 +73,16 @@ class ResultTableViewCell: UITableViewCell {
             downloadTheSong.enabled = false
             downloadView.hidden = false
             switchButton.setTitle("Play", forState: .Normal)
+            progressBar.hidden = true
             terminateDownloading.setTitle("Delete", forState: .Normal)
         }
         if appDelegate.cache.objectForKey(cellIndex) != nil {
             thumbNail.image = appDelegate.cache.objectForKey(cellIndex) as? UIImage
-        }else {
+        }else if appDelegate.result[cellIndex].thumbnail == nil{
             imageLoader()
+        }else {
+            thumbNail.image = appDelegate.result[cellIndex].thumbnail
         }
-        imageLoader()
     }
     
     override func setSelected(selected: Bool, animated: Bool) {
@@ -90,6 +93,7 @@ class ResultTableViewCell: UITableViewCell {
         dispatch_async(dispatch_get_global_queue(0, 0)) { 
             let imageData = NSData(contentsOfURL: NSURL(string: self.appDelegate.result[self.cellIndex].thumbNailPath!)!)
             let image = UIImage(data: imageData!)
+            self.appDelegate.result[self.cellIndex].thumbnail = image
             self.appDelegate.cache.setObject(image!, forKey: self.cellIndex)
             dispatch_async(dispatch_get_main_queue(), { 
                 self.thumbNail.image = image
@@ -111,6 +115,15 @@ class ResultTableViewCell: UITableViewCell {
             downloadLabel.hidden = true
             terminateDownloading.setTitle("Cancel", forState: .Normal)
             switchButton.setTitle("Pause", forState: .Normal)
+            do {
+                try StoreManager().save(appDelegate.result, name: "result") { (status) in
+                    if status == false {
+                        self.delegate?.shouldShowAlert("Can not delete song on the disk.")
+                    }
+                }
+            }catch let error {
+                self.delegate?.shouldShowAlert("\(error)")
+            }
         }else if sender.titleLabel?.text == "Cancel" {
             webServiceHandler.downloadManager!.cancel()
             webServiceHandler.resumeData = nil
@@ -124,6 +137,8 @@ class ResultTableViewCell: UITableViewCell {
     
     @IBAction func downloadSwitchTrigger(sender: UIButton) {
         if sender.titleLabel?.text == "Play" {
+            muteAll!()
+            appDelegate.result[cellIndex].isPlaying = true
             MusicPlayer.initWithFilePath(appDelegate.result[cellIndex].music)
             MusicPlayer.play()
             sender.setTitle("Stop", forState: .Normal)
@@ -131,6 +146,7 @@ class ResultTableViewCell: UITableViewCell {
             downloadLabel.hidden = true
         }else if sender.titleLabel?.text == "Stop" {
             MusicPlayer.stop()
+            appDelegate.result[cellIndex].isPlaying = false
             sender.setTitle("Play", forState: .Normal)
         }else if sender.titleLabel?.text == "Pause" {
             webServiceHandler.downloadManager!.cancelByProducingResumeData({ (data) in
@@ -151,5 +167,19 @@ class ResultTableViewCell: UITableViewCell {
         progressBar.hidden = false
         downloadLabel.hidden = false
         webServiceHandler.downloadHandler(appDelegate.result[cellIndex].downloadPath!,sender:self)
+    }
+}
+
+protocol ErrorDelegate: class {
+    func shouldShowAlert(error:String);
+}
+
+extension ErrorDelegate where Self: UIViewController {
+    func shouldShowAlert(error:String){
+        let alert = UIAlertController(title: "Error", message: error, preferredStyle: .Alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .Cancel, handler: nil))
+        dispatch_async(dispatch_get_main_queue()) { 
+            self.presentViewController(alert, animated: true, completion: nil)
+        }
     }
 }

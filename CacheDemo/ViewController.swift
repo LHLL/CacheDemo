@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
+class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, ErrorDelegate {
 
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var searchTableView: UITableView!
@@ -38,6 +38,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath) as! ResultTableViewCell
         cell.cellIndex = indexPath.row
+        cell.muteAll = {self.stopPlayingMusic()}
         return cell
     }
     
@@ -54,13 +55,16 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
         WebServiceHandler().searchHandler(searchBar.text!) { (result, error) in
-            guard error == nil else {
+            guard result != nil else {
                 self.alertCenter(error!)
                 return
             }
             self.appDelegate.result = result!
             dispatch_async(dispatch_get_main_queue(), { 
                 self.searchTableView.reloadData()
+                if error != nil {
+                    self.alertCenter(error!)
+                }
             })
         }
     }
@@ -74,14 +78,26 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
+    //MARK: Utility methods
     func alertCenter(error:String) {
         let alert = UIAlertController(title: "Error", message: error, preferredStyle: .Alert)
         alert.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: nil))
         dispatch_async(dispatch_get_main_queue()) { 
             self.presentViewController(alert, animated: true, completion: nil)
+        }
+    }
+    
+    func stopPlayingMusic(){
+        for index in 0..<appDelegate.result.count {
+            if appDelegate.result[index].isPlaying {
+                appDelegate.result[index].isPlaying = false
+                dispatch_async(dispatch_get_main_queue(), { 
+                    let cell = self.searchTableView.cellForRowAtIndexPath(NSIndexPath(forRow: index, inSection: 0)) as! ResultTableViewCell
+                    cell.switchButton.setTitle("Play", forState: .Normal)
+                })
+            }
         }
     }
 }

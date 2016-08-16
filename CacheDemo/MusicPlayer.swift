@@ -16,6 +16,8 @@ class MusicPlayer: NSObject {
         if player != nil {
             stop()
         }
+        //line 20 ensure music can be played on the silent mode
+        try! AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
         player = try! AVAudioPlayer(data:data)
     }
     
